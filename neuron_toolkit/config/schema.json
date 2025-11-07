@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/neuron-experiment-config.schema.json",
+  "title": "NEURON Experiment Configuration",
+  "description": "Schema for NEURON YAML experiment configuration files",
+  "type": "object",
+  "required": ["metadata", "model", "stimuli", "recordings", "simulation"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Experiment name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Experiment description"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version (e.g., 1.0.0)",
+          "default": "1.0.0"
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "temperature_celsius": {
+          "type": "number",
+          "minimum": -50,
+          "maximum": 100,
+          "description": "Temperature in Celsius (physiological range: 20-40°C)",
+          "default": 36.0
+        },
+        "random_seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "Random seed for reproducibility (0-2^31-1)"
+        },
+        "mechanisms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["hh", "pas", "ca_ion", "k_ion", "na_ion"]
+          },
+          "description": "Required NEURON mechanisms"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["morphology", "biophysics"],
+      "properties": {
+        "morphology": {
+          "type": "object",
+          "required": ["type", "sections"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["single_compartment", "multi_section"],
+              "description": "Morphology type"
+            },
+            "sections": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                  "type": "object",
+                  "required": ["L", "diam"],
+                  "properties": {
+                    "L": {
+                      "type": "number",
+                      "minimum": 0.1,
+                      "maximum": 10000,
+                      "description": "Section length in micrometers (0.1-10000 μm)"
+                    },
+                    "diam": {
+                      "type": "number",
+                      "minimum": 0.01,
+                      "maximum": 1000,
+                      "description": "Section diameter in micrometers (0.01-1000 μm)"
+                    },
+                    "nseg": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 1000,
+                      "description": "Number of segments (1-1000)",
+                      "default": 1
+                    }
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "connections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["parent", "child"],
+                "properties": {
+                  "parent": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "description": "Parent section name (must exist in sections)"
+                  },
+                  "child": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "description": "Child section name (must exist in sections)"
+                  },
+                  "parent_loc": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Connection location on parent (0-1)",
+                    "default": 1.0
+                  },
+                  "child_loc": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Connection location on child (0-1)",
+                    "default": 0.0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "biophysics": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": "object",
+              "properties": {
+                "Ra": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 10000,
+                  "description": "Axial resistance in Ohm*cm (1-10000)",
+                  "default": 100.0
+                },
+                "cm": {
+                  "type": "number",
+                  "minimum": 0.1,
+                  "maximum": 100,
+                  "description": "Membrane capacitance in uF/cm^2 (0.1-100)",
+                  "default": 1.0
+                },
+                "mechanisms": {
+                  "type": "object",
+                  "properties": {
+                    "hh": {
+                      "type": "object",
+                      "properties": {
+                        "gnabar_hh": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "description": "Na channel density (S/cm^2)"
+                        },
+                        "gkbar_hh": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "description": "K channel density (S/cm^2)"
+                        },
+                        "gl_hh": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "description": "Leak conductance (S/cm^2)"
+                        },
+                        "el_hh": {
+                          "type": "number",
+                          "minimum": -120,
+                          "maximum": 50,
+                          "description": "Leak reversal potential (mV)"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "pas": {
+                      "type": "object",
+                      "properties": {
+                        "g_pas": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "description": "Passive conductance (S/cm^2)"
+                        },
+                        "e_pas": {
+                          "type": "number",
+                          "minimum": -120,
+                          "maximum": 50,
+                          "description": "Passive reversal potential (mV)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": {
+                    "type": "object",
+                    "description": "Custom mechanism parameters"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stimuli": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "section", "delay_ms", "duration_ms", "amplitude_nA"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "description": "Stimulus name (valid identifier)"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["IClamp"],
+            "description": "Stimulus type (currently only IClamp supported)",
+            "default": "IClamp"
+          },
+          "section": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "description": "Target section name (must exist in morphology)"
+          },
+          "loc": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Location on section (0-1)",
+            "default": 0.5
+          },
+          "delay_ms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000,
+            "description": "Delay in milliseconds (0-100000)"
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 100000,
+            "description": "Duration in milliseconds (0.001-100000)"
+          },
+          "amplitude_nA": {
+            "type": "number",
+            "minimum": -1000,
+            "maximum": 1000,
+            "description": "Amplitude in nanoamperes (-1000 to 1000)"
+          }
+        }
+      }
+    },
+    "recordings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "variable", "section"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "description": "Recording name (valid identifier)"
+          },
+          "variable": {
+            "type": "string",
+            "enum": ["v", "i", "i_membrane", "i_cap"],
+            "description": "Variable to record: v (voltage), i (current), i_membrane, i_cap"
+          },
+          "section": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "description": "Target section name (must exist in morphology)"
+          },
+          "loc": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Location on section (0-1)",
+            "default": 0.5
+          }
+        }
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "required": ["tstop_ms"],
+      "properties": {
+        "tstop_ms": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 100000,
+          "description": "Simulation end time in milliseconds (0.1-100000)"
+        },
+        "dt_ms": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 1,
+          "description": "Time step in milliseconds (0.001-1.0)",
+          "default": 0.025
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "directory": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_/.-]+$",
+          "description": "Output directory (valid path)",
+          "default": "results"
+        },
+        "save_traces": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": ["csv"],
+              "description": "Trace format (currently only CSV supported)",
+              "default": "csv"
+            }
+          }
+        },
+        "plot": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable plotting",
+              "default": true
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+              },
+              "description": "Variables to plot (must match recording names)"
+            },
+            "save_as": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_.-]+\\.(png|jpg|jpeg|pdf|svg)$",
+              "description": "Plot filename with valid image extension",
+              "default": "voltage.png"
+            }
+          }
+        }
+      }
+    }
+  }
+}

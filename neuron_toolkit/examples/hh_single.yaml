@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../config/schema.json
+
+metadata:
+  name: "HH Single Compartment Example"
+  description: "Classic Hodgkin-Huxley simulation in a single compartment"
+  version: "1.0.0"
+
+environment:
+  temperature_celsius: 36.0
+  random_seed: 1234
+  mechanisms: ["hh"]
+
+model:
+  morphology:
+    type: "single_compartment"
+    sections:
+      soma:
+        L: 20
+        diam: 20
+        nseg: 1
+
+  biophysics:
+    soma:
+      Ra: 100
+      cm: 1
+      mechanisms:
+        hh:
+          gnabar_hh: 0.12
+          gkbar_hh: 0.036
+          gl_hh: 0.0003
+          el_hh: -54.3
+
+stimuli:
+  - name: "main_stim"
+    type: "IClamp"
+    section: "soma"
+    loc: 0.5
+    delay_ms: 10
+    duration_ms: 40
+    amplitude_nA: 0.1
+
+recordings:
+  - name: "soma_v"
+    variable: "v"
+    section: "soma"
+    loc: 0.5
+
+simulation:
+  tstop_ms: 60
+  dt_ms: 0.025
+
+outputs:
+  directory: "results/hh_single"
+  save_traces:
+    format: "csv"
+  plot:
+    enabled: true
+    variables: ["soma_v"]
+    save_as: "voltage.png"

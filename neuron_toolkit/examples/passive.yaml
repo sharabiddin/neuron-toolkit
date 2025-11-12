@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=../config/schema.json
+
+metadata:
+  name: "Passive Membrane Example"
+  description: "Simple passive membrane simulation"
+  version: "1.0.0"
+
+environment:
+  temperature_celsius: 36.0
+  random_seed: 1234
+  mechanisms: ["pas"]
+
+model:
+  morphology:
+    type: "single_compartment"
+    sections:
+      soma:
+        L: 20
+        diam: 20
+        nseg: 1
+
+  biophysics:
+    soma:
+      Ra: 100
+      cm: 1
+      mechanisms:
+        pas:
+          g_pas: 0.001
+          e_pas: -65.0
+
+stimuli:
+  - name: "current_step"
+    type: "IClamp"
+    section: "soma"
+    loc: 0.5
+    delay_ms: 10
+    duration_ms: 40
+    amplitude_nA: 0.02
+
+recordings:
+  - name: "soma_v"
+    variable: "v"
+    section: "soma"
+    loc: 0.5
+
+simulation:
+  tstop_ms: 80
+  dt_ms: 0.025
+
+outputs:
+  directory: "results/passive"
+  save_traces:
+    format: "csv"
+  plot:
+    enabled: true
+    variables: ["soma_v"]
+    save_as: "voltage.png"

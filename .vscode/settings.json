@@ -1,0 +1,21 @@
+{
+  "yaml.schemas": {
+    "./neuron_toolkit/config/schema.json": [
+      "**/neuron_toolkit/examples/*.yaml",
+      "**/experiments/*.yaml",
+      "**/*experiment*.yaml",
+      "**/*neuron*.yaml",
+      "**/test*.yaml"
+    ]
+  },
+  "yaml.validate": true,
+  "yaml.completion": true,
+  "yaml.hover": true,
+  "yaml.format.enable": true,
+  "yaml.schemaStore.enable": true,
+  "problems.decorations.enabled": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.suggest.insertMode": "replace"
+}

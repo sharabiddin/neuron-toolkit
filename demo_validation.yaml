@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=./neuron_toolkit/config/schema.json
+
+metadata:
+  name: "Demo Real-time Validation"
+  description: "Try editing values below to see instant validation"
+  version: "1.0.0"
+
+environment:
+  temperature_celsius: 36.0  # Try changing to 999 - should show error
+  random_seed: 1234  # Try changing to -1 - should show error
+
+model:
+  morphology:
+    type: "single_compartment"  # Try changing to "invalid" - should show error
+    sections:
+      soma:  # Try changing to "123invalid" - should show error
+        L: 20  # Try changing to -5 - should show error
+        diam: 20
+        nseg: 1
+
+  biophysics:
+    soma:
+      Ra: 100
+      cm: 1
+      mechanisms:
+        hh:  # Try changing to "invalid_mech" - should show error
+          gnabar_hh: 0.12  # Try changing to 5 - should show error
+          gkbar_hh: 0.036
+          gl_hh: 0.0003
+          el_hh: -54.3
+
+stimuli:
+  - name: "stim1"  # Try changing to "123invalid" - should show error
+    type: "IClamp"  # Try changing to "VClamp" - should show error
+    section: "soma"
+    delay_ms: 10  # Try changing to -5 - should show error
+    duration_ms: 40  # Try changing to 0 - should show error
+    amplitude_nA: 0.1  # Try changing to 5000 - should show error
+
+recordings:
+  - name: "soma_v"
+    variable: "v"  # Try changing to "invalid" - should show error
+    section: "soma"
+
+simulation:
+  tstop_ms: 60  # Try changing to 999999 - should show error
+  dt_ms: 0.025  # Try changing to 5 - should show error
+
+outputs:
+  directory: "results/demo"  # Try changing to "/invalid path!" - should show error
+  plot:
+    enabled: true
+    variables: ["soma_v"]
+    save_as: "voltage.png"  # Try changing to "plot" - should show error

@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=./neuron_toolkit/config/schema.json
+
+metadata:
+  name: "Test Real-time Validation"
+  description: "Example to test VS Code validation"
+  version: "1.0.0"
+
+environment:
+  temperature_celsius: 37.0
+  random_seed: 42
+
+model:
+  morphology:
+    type: "single_compartment"
+    sections:
+      soma:
+        L: 25
+        diam: 25
+        nseg: 1
+
+  biophysics:
+    soma:
+      Ra: 100
+      cm: 1
+      mechanisms:
+        hh:
+          gnabar_hh: 0.12
+          gkbar_hh: 0.036
+          gl_hh: 0.0003
+          el_hh: -54.3
+
+stimuli:
+  - name: "test_stim"
+    section: "soma"
+    delay_ms: 5
+    duration_ms: 30
+    amplitude_nA: 0.08
+
+recordings:
+  - name: "soma_v"
+    variable: "v"
+    section: "soma"
+
+simulation:
+  tstop_ms: 50
+  dt_ms: 0.025
+
+outputs:
+  directory: "results/test"
+  plot:
+    enabled: true
+    variables: ["soma_v"]

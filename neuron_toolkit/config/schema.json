@@ -106,12 +106,12 @@
                   "parent": {
                     "type": "string",
                     "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-                    "description": "Parent section name (must exist in sections)"
+                    "description": "Parent section name (must exist in morphology.sections)"
                   },
                   "child": {
                     "type": "string",
                     "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-                    "description": "Child section name (must exist in sections)"
+                    "description": "Child section name (must exist in morphology.sections)"
                   },
                   "parent_loc": {
                     "type": "number",
@@ -233,9 +233,9 @@
             "default": "IClamp"
           },
           "section": {
-            "type": "string",
+            "type": "string", 
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "description": "Target section name (must exist in morphology)"
+            "description": "Target section name (must exist in morphology.sections)"
           },
           "loc": {
             "type": "number",
@@ -282,9 +282,9 @@
             "description": "Variable to record: v (voltage), i (current), i_membrane, i_cap"
           },
           "section": {
-            "type": "string",
+            "type": "string", 
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-            "description": "Target section name (must exist in morphology)"
+            "description": "Target section name (must exist in morphology.sections)"
           },
           "loc": {
             "type": "number",

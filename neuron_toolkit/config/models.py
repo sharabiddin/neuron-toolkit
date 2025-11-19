@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional, Literal, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SectionConfig(BaseModel):
@@ -91,3 +91,50 @@ class ExperimentConfig(BaseModel):
             section_name: BiophysicsConfig(**section_config)
             for section_name, section_config in biophysics_data.items()
         }
+    
+    @model_validator(mode='after')
+    def validate_section_references(self) -> 'ExperimentConfig':
+        """Validate that all section references in stimuli and recordings exist in morphology."""
+        # Get available sections
+        morphology = self.get_morphology()
+        available_sections = set(morphology.sections.keys())
+        
+        # Check stimuli section references
+        for stimulus in self.stimuli:
+            if stimulus.section not in available_sections:
+                raise ValueError(
+                    f"Stimulus '{stimulus.name}' references section '{stimulus.section}' "
+                    f"which doesn't exist in morphology. Available sections: {sorted(available_sections)}"
+                )
+        
+        # Check recordings section references
+        for recording in self.recordings:
+            if recording.section not in available_sections:
+                raise ValueError(
+                    f"Recording '{recording.name}' references section '{recording.section}' "
+                    f"which doesn't exist in morphology. Available sections: {sorted(available_sections)}"
+                )
+        
+        # Check biophysics section references
+        biophysics_sections = set(self.model.get("biophysics", {}).keys())
+        for section_name in biophysics_sections:
+            if section_name not in available_sections:
+                raise ValueError(
+                    f"Biophysics defined for section '{section_name}' "
+                    f"which doesn't exist in morphology. Available sections: {sorted(available_sections)}"
+                )
+        
+        # Check connections reference valid sections
+        for connection in morphology.connections:
+            if connection.parent not in available_sections:
+                raise ValueError(
+                    f"Connection references parent section '{connection.parent}' "
+                    f"which doesn't exist in morphology. Available sections: {sorted(available_sections)}"
+                )
+            if connection.child not in available_sections:
+                raise ValueError(
+                    f"Connection references child section '{connection.child}' "
+                    f"which doesn't exist in morphology. Available sections: {sorted(available_sections)}"
+                )
+        
+        return self

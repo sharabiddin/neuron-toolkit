@@ -138,6 +138,13 @@ All example files include schema references for real-time validation:
 - ✅ **Range validation** with min/max values
 - ✅ **Pattern validation** for identifiers and paths
 
+### Validation Levels
+1. **JSON Schema (VS Code real-time)**: Basic syntax, types, ranges, enums
+2. **Pydantic (CLI validation)**: Advanced cross-field validation including:
+   - ✅ **Section reference validation**: Stimuli/recordings must reference existing morphology sections
+   - ✅ **Connection validation**: Parent/child sections must exist in morphology
+   - ✅ **Biophysics validation**: All biophysics sections must exist in morphology
+
 ## Examples
 
 The toolkit includes three example configurations:
